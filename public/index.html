@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Image Host</title>
+    <link href="https://transloadit.edgly.net/releases/uppy/v1.4.0/uppy.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div id="drag-drop-area"></div>
+
+    <script src="https://transloadit.edgly.net/releases/uppy/v1.4.0/uppy.min.js"></script>
+    <script>
+        const uppy = Uppy.Core({
+            allowMultipleUploads: false, restrictions: {
+                maxNumberOfFiles: 1,
+                minNumberOfFiles: 1
+            }
+        })
+            .use(Uppy.Dashboard, {
+                inline: true,
+                target: '#drag-drop-area'
+            })
+            .use(Uppy.XHRUpload, { endpoint: '/upload', fieldName: 'file' })
+
+        uppy.on('complete', (result) => {
+            console.log('Upload complete! We’ve uploaded these files:', result.successful)
+        })
+    </script>
+</body>
+
+</html>

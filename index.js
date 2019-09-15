@@ -33,6 +33,10 @@ app.use(responseTime);
 // route definitions
 
 router
+  .get('/', async ctx => {
+    ctx.type = 'html';
+    ctx.body = fs.createReadStream('public/upload.html');
+  })
   .post('/upload', koaBody({
     multipart: true, formidable: {
       keepExtensions: true,
@@ -63,9 +67,14 @@ router
     const filePath = path.join(dirPath, `${file.hash}.${file.name.split('.').pop()}`)
     const stream = fs.createWriteStream(filePath);
     reader.pipe(stream);
-    console.log('uploading %s -> %s', file.name, stream.path);
+    const urlPath = `/img/${date.year}/${date.toFormat('MM')}/${date.toFormat('dd')}/${file.hash}.${file.name.split('.').pop()}`;
+    console.log('uploading %s -> %s', file.name, urlPath);
 
-    ctx.redirect(`/img/${date.year}/${date.toFormat('MM')}/${date.toFormat('dd')}/${file.hash}.${file.name.split('.').pop()}`);
+    ctx.type = 'application/json';
+
+    ctx.body = {
+      url: `${ctx.origin}${urlPath}`,
+    }
   });
 
 app.use(router.routes());
