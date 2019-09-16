@@ -1,0 +1,24 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        title Uppy
+        link(href="https://transloadit.edgly.net/releases/uppy/v1.4.0/uppy.min.css" rel="stylesheet")
+    body
+        #drag-drop-area
+        script(src="https://transloadit.edgly.net/releases/uppy/v1.4.0/uppy.min.js")
+        script.
+            const uppy = Uppy.Core({
+            allowMultipleUploads: false, restrictions: {
+            maxNumberOfFiles: 1,
+            minNumberOfFiles: 1
+            }
+            })
+            .use(Uppy.Dashboard, {
+            inline: true,
+            target: '#drag-drop-area'
+            })
+            .use(Uppy.XHRUpload, { endpoint: '/upload', fieldName: 'file' })
+            uppy.on('complete', (result) => {
+            console.log('Upload complete! We’ve uploaded these files:', result.successful)
+            })

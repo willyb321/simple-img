@@ -1,7 +1,5 @@
 require('dotenv').config()
 
-
-
 /**
  * Module dependencies.
  */
@@ -10,6 +8,7 @@ const logger = require('koa-logger');
 const router = require('koa-router')();
 const serve = require('koa-static');
 const koaBody = require('koa-body');
+const views = require('koa-views');
 const Koa = require('koa');
 const fs = require('fs-extra');
 const app = new Koa();
@@ -20,6 +19,10 @@ const { DateTime } = require('luxon');
 
 app.use(logger());
 
+// Must be used before any router is used
+app.use(views(path.join(__dirname, 'views'), {
+  extension: 'pug'
+}));
 
 async function responseTime(ctx, next) {
   const start = Date.now();
@@ -34,8 +37,7 @@ app.use(responseTime);
 
 router
   .get('/', async ctx => {
-    ctx.type = 'html';
-    ctx.body = fs.createReadStream('public/upload.html');
+    await ctx.render('index.pug')
   })
   .post('/upload', koaBody({
     multipart: true, formidable: {
@@ -47,7 +49,6 @@ router
     const file = ctx.request.files.file;
 
     const date = DateTime.local();
-    console.log(file);
     const reader = fs.createReadStream(file.path);
 
     const dirPath = path.join(
@@ -84,12 +85,12 @@ app.use(router.routes());
 app.use(async function (ctx, next) {
   await next();
   if (ctx.body || !ctx.idempotent) return;
-  ctx.redirect('/404.html');
+  await ctx.render('404.pug')
 });
 
 // serve files from ./public
 
-app.use(serve(path.join(__dirname, '/public')));
+app.use(serve(path.join(__dirname, 'public')));
 
 
 // listen
